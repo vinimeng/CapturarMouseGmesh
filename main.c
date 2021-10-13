@@ -33,6 +33,8 @@ int main(void)
     char mousePosition[100];
     int mouseX = 0;
     int mouseY = 0;
+    FILE *filePointer;
+    char *nomeArquivo = "mesh.geo";
 
     InitWindow(screenWidth, screenHeight, "Capturar mouse");
 
@@ -43,6 +45,9 @@ int main(void)
 
     int touchedCounter = 0;
     Vector2 touchedPositions[MAX_TOUCH_POINTS];
+
+    filePointer = fopen(nomeArquivo, "w");
+    fprintf(filePointer, "lc = 0.3;\n\n");
 
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -64,11 +69,12 @@ int main(void)
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
             ballColor = MAROON;
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             touchedPositions[touchedCounter] = GetTouchPosition(0);
             if ((touchedPositions[touchedCounter].x >= 0) && (touchedPositions[touchedCounter].y >= 0)) // Make sure point is not (-1,-1) as this means there is no touch for it
             {
+                fprintf(filePointer, "Point(%d) = {%f, %f, 0, lc};\n", touchedCounter + 1, touchedPositions[touchedCounter].x, touchedPositions[touchedCounter].y);
                 touchedCounter++;
             }
             touchCounter = 10;
@@ -101,6 +107,34 @@ int main(void)
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
+
+    fprintf(filePointer, "\n\n\n// cria linhas\n");
+
+    int i;
+
+    for (i = 1; i < touchedCounter; i++)
+    {
+        fprintf(filePointer, "Line(%d)={%d,%d};\n", i, i, i + 1);
+    }
+
+    fprintf(filePointer, "Line(%d)={%d,%d};\n", i, i, 1);
+
+    fprintf(filePointer, "\n\n\n// cria superficie\n");
+
+    fprintf(filePointer, "Curve Loop(1) = {");
+
+    for (i = 1; i < touchedCounter; i++)
+    {
+        fprintf(filePointer, "%d,", i);
+    }
+
+    fprintf(filePointer, "%d};\n", i);
+
+    fprintf(filePointer, "\nPlane Surface(1) = {1}; \n");
+
+    fprintf(filePointer, "\nPhysical Surface (1) = {1};");
+
+    fclose(filePointer);
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
