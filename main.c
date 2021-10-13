@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include "raylib.h"
 
+#define MAX_TOUCH_POINTS 100
+
 int main(void)
 {
     // Initialization
@@ -34,6 +36,14 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "Capturar mouse");
 
+    Vector2 ballPosition = {-100.0f, -100.0f};
+    Color ballColor = BEIGE;
+
+    int touchCounter = 0;
+
+    int touchedCounter = 0;
+    Vector2 touchedPositions[MAX_TOUCH_POINTS];
+
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
@@ -42,7 +52,30 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
+        mouseX = GetMouseX();
+        mouseY = GetMouseY();
+
+        snprintf(mousePosition, 100, "MouseX: %d / MouseY: %d", mouseX, mouseY);
+
+        ballPosition = GetMousePosition();
+
+        ballColor = BEIGE;
+
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            ballColor = MAROON;
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+        {
+            touchedPositions[touchedCounter] = GetTouchPosition(0);
+            if ((touchedPositions[touchedCounter].x >= 0) && (touchedPositions[touchedCounter].y >= 0)) // Make sure point is not (-1,-1) as this means there is no touch for it
+            {
+                touchedCounter++;
+            }
+            touchCounter = 10;
+        }
+
+        if (touchCounter > 0)
+            touchCounter--;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -51,14 +84,19 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        mouseX = GetMouseX();
-        mouseY = GetMouseY();
-
-        snprintf(mousePosition, 100, "MouseX: %d / MouseY: %d", mouseX, mouseY);
-
-        DrawText("Clique dentro da janela para capturar as coordenadas do seu mouse!", 150, 300, 20, BLACK);
+        DrawText("Clique dentro da janela para capturar as coordenadas do seu mouse!", 150, 300, 20, DARKGRAY);
 
         DrawText(mousePosition, 600, 400, 20, GRAY);
+
+        // Draw the normal mouse location
+        DrawCircleV(ballPosition, 10 + (touchCounter * 3.0f), ballColor);
+
+        for (int i = 0; i < touchedCounter; ++i)
+        {
+            // Draw circle and touch index number
+            DrawCircleV(touchedPositions[i], 15, ORANGE);
+            DrawText(TextFormat("%d", i), (int)touchedPositions[i].x - 10, (int)touchedPositions[i].y - 40, 22, BLACK);
+        }
 
         EndDrawing();
         //----------------------------------------------------------------------------------
