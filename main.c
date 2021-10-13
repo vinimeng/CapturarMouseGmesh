@@ -74,7 +74,7 @@ int main(void)
             touchedPositions[touchedCounter] = GetTouchPosition(0);
             if ((touchedPositions[touchedCounter].x >= 0) && (touchedPositions[touchedCounter].y >= 0)) // Make sure point is not (-1,-1) as this means there is no touch for it
             {
-                fprintf(filePointer, "Point(%d) = {%f, %f, 0, lc};\n", touchedCounter + 1, touchedPositions[touchedCounter].x, touchedPositions[touchedCounter].y);
+                fprintf(filePointer, "Point(%d) = {%f, %f, 0, lc};\n", touchedCounter + 1, touchedPositions[touchedCounter].x / 1000, touchedPositions[touchedCounter].y / 1000);
                 touchedCounter++;
             }
             touchCounter = 10;
